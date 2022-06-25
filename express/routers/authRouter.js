@@ -35,13 +35,15 @@ router.post('/register', registerRules, async (req, res, next) => {
     // 回傳失敗結果給前端
     return res.status(400).json({ errorColumns: error });
   }
+  // 將前端送來的密碼進行雜湊
+  let hashPassword = await bcrypt.hash(req.body.password, 10);
   // TODO: user 資料寫進資料庫
   await pool.execute(
     'INSERT INTO user (name,email, passwords, gender, age, photo) VALUES (?,?,?,?,?,?)',
     [
       req.body.username,
       req.body.email,
-      req.body.password,
+      hashPassword,
       req.body.gender,
       req.body.age,
       req.body.photo,
