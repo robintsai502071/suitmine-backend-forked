@@ -7,9 +7,10 @@ const pool = require('../utils/db');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 
-// for image upload
+// 引入圖片處理套件 for image upload
 const multer = require('multer');
-const path = require('path');
+// 引入 node.js 內建 path，(圖片儲存位置會用到)
+const path = require('path'); 
 
 // 設定圖片儲存位置
 const storage = multer.diskStorage({
