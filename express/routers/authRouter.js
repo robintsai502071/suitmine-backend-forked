@@ -10,7 +10,7 @@ const bcrypt = require('bcrypt');
 // 引入圖片處理套件 for image upload
 const multer = require('multer');
 // 引入 node.js 內建 path，(圖片儲存位置會用到)
-const path = require('path'); 
+const path = require('path');
 
 // 設定圖片儲存位置
 const storage = multer.diskStorage({
@@ -68,7 +68,8 @@ const registerRules = [
     })
     .withMessage('密碼不一致'),
 ];
-// register
+
+// /api/auth/register
 router.post(
   '/register',
   uploader.single('photo'), // 接收來自名為 photo 欄位的「單一」上傳檔案，並將檔案資訊存放在 req.file 上
@@ -101,7 +102,7 @@ router.post(
     // 目前這個專案採用：儲存 avatar/xxxxxxx.jpg 這樣格式
     // 使用者不一定有上傳圖片，所以要確認 req 是否有 file
     let photo = req.file ? '/avatar/' + req.file.filename : '';
-    console.log(photo+'********************');
+
     // TODO: user 資料寫進資料庫
     await pool.execute(
       'INSERT INTO user (name, email, passwords, gender, age, photo) VALUES (?,?,?,?,?,?)',
@@ -119,5 +120,70 @@ router.post(
     res.json({ response: '註冊成功！' });
   }
 );
+
+// /api/auth/login
+router.post('/login', async (req, res, next) => {
+  // 確認資料有收到
+  // 確認有沒有這個帳號
+  let [user] = await pool.execute(
+    'SELECT id, name ,email, passwords, photo FROM user WHERE email = ?',
+    [req.body.email]
+  );
+  // user 撈出來是一個陣列，有撈到資料代表有註冊過
+  if (user.length === 0) {
+    // 如果沒有註冊過就回覆錯誤
+    return res.status(400).json({ error: '帳號或密碼錯誤444' });
+  }
+
+  user = user[0];
+
+  // 如果有，確認密碼(用 bcrypt 雜湊套件提供的方法)
+  let passwordCompareResult = await bcrypt.compare(
+    req.body.password,
+    user.passwords
+  );
+
+  if (passwordCompareResult === false) {
+    return (
+      res
+        .status(400)
+        // 如果密碼不符合，回覆登入錯誤
+        .json({ error: '帳號或密碼錯誤' })
+    );
+  }
+
+  // 密碼符合就開始寫 session/cookie (或用 JWT 取代
+  // （要先去 server.js 裡啟動 session）
+  let returnUserInfo = {
+    email: user.email,
+    name: user.name,
+    photo: user.photo,
+  };
+  // 因為 session 被修改過了，
+  // express-session 就會幫我們把 session 存入store (此專案存在另建立的 sessions 資料夾)
+  // 並把 session ID 存放在使用者瀏覽器cookie。
+  req.session.user = returnUserInfo;
+  // // 回覆資料給前端
+  res.json({ message: '登入成功', user: returnUserInfo });
+});
+
+// /api/auth/logout
+router.get('/logout', (req, res, next) => {
+  // 因為我們會依靠判斷 req.session.member 有沒有資料來當作有沒有登入
+  // 所以當我們把 req.session.member 設定成 null，那就登出了
+  req.session.user = null;
+  res.sendStatus(202);
+});
+
+// /api/auth/checkIsLogin
+router.get('/checkIsLogin', (req, res, next) => {
+  if (req.session.user) {
+    // 表示登入過
+    return res.json(req.session.user);
+  } else {
+    // 表示尚未登入
+    return res.status(403).json({ error: '尚未登入' });
+  }
+});
 
 module.exports = router;
