@@ -136,13 +136,13 @@ router.post('/login', async (req, res, next) => {
   }
 
   user = user[0];
- 
+
   // 如果有，確認密碼(用 bcrypt 雜湊套件提供的方法)
   let passwordCompareResult = await bcrypt.compare(
     req.body.password,
     user.passwords
   );
-  
+
   if (passwordCompareResult === false) {
     return (
       res
@@ -173,6 +173,17 @@ router.get('/logout', (req, res, next) => {
   // 所以當我們把 req.session.member 設定成 null，那就登出了
   req.session.user = null;
   res.sendStatus(202);
+});
+
+// /api/auth/checkIsLogin
+router.get('/checkIsLogin', (req, res, next) => {
+  if (req.session.user) {
+    // 表示登入過
+    return res.json(req.session.user);
+  } else {
+    // 表示尚未登入
+    return res.status(403).json({ error: '尚未登入' });
+  }
 });
 
 module.exports = router;
