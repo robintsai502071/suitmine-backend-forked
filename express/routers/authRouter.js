@@ -159,10 +159,20 @@ router.post('/login', async (req, res, next) => {
     name: user.name,
     photo: user.photo,
   };
-  // 利用套件 sessions 資料夾就會在這邊新增檔案
+  // 因為 session 被修改過了，
+  // express-session 就會幫我們把 session 存入store (此專案存在另建立的 sessions 資料夾)
+  // 並把 session ID 存放在使用者瀏覽器cookie。
   req.session.user = returnUserInfo;
   // // 回覆資料給前端
   res.json({ message: '登入成功', user: returnUserInfo });
+});
+
+// /api/auth/logout
+router.get('/logout', (req, res, next) => {
+  // 因為我們會依靠判斷 req.session.member 有沒有資料來當作有沒有登入
+  // 所以當我們把 req.session.member 設定成 null，那就登出了
+  req.session.user = null;
+  res.sendStatus(202);
 });
 
 module.exports = router;
