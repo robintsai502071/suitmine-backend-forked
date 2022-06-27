@@ -31,6 +31,10 @@ app.use(
 const AuthRouter = require('./routers/authRouter');
 app.use('/api/auth', AuthRouter);
 
+//商品列表
+const productListR = require('./routers/productListR');
+app.use('/api/prolist', productListR);
+
 app.listen(3001, () => {
   console.log('Server running at port 3001');
 });
