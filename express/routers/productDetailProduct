@@ -1,0 +1,13 @@
+const express = require('express');
+const router = express.Router();
+const pool = require('../utils/db');
+
+router.get('/', async (req, res, next) => {
+  //   取得product的內容
+  let [productContent] = await pool.execute(
+    `SELECT id, name, product_photo, product_photo_detail1, product_photo_detail2, product_photo_detail3, product_photo_detail4, product_photo_detail5, product_photo_detail6, price, content, pattern_type, color_type, texture_type  FROM product`
+  );
+  res.json(productContent);
+});
+
+module.exports = router;
