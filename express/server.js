@@ -52,12 +52,17 @@ app.use(
   express.static(path.join(__dirname, 'uploadedByUser', 'avatar'))
 );
 
+//註冊
 const AuthRouter = require('./routers/authRouter');
 app.use('/api/auth', AuthRouter);
 
 //商品列表
 const productListR = require('./routers/productListR');
 app.use('/api/prolist', productListR);
+
+//商品細節顯示頁面
+const prodetail = require('./routers/productdetail');
+app.use('/api/prodetail', prodetail);
 
 app.listen(3001, () => {
   console.log('Server running at port 3001');
