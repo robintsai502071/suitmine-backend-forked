@@ -52,9 +52,17 @@ app.use(
   express.static(path.join(__dirname, 'uploadedByUser', 'avatar'))
 );
 
-//註冊
+// 註冊、登入、確認是否登入
 const AuthRouter = require('./routers/authRouter');
 app.use('/api/auth', AuthRouter);
+
+// 會員
+const MemberRouter = require('./routers/memberRouter');
+app.use('/api/member', MemberRouter);
+
+// 讓會員重新上傳大頭貼 => 修改個人資料頁面用
+const ReuploadAvatarRouter = require('./routers/reuploadAvatarRouter');
+app.use('/api/reupload/avatar', ReuploadAvatarRouter);
 
 //商品列表
 const productListR = require('./routers/productListR');
