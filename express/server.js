@@ -68,6 +68,10 @@ app.use('/api/reupload/avatar', ReuploadAvatarRouter);
 // const MyFavoritesRouter = require('./routers/myFavoritesRouter');
 // app.use('/api', MyFavoritesRouter);
 
+// 部落格
+const BlogRouter = require('./routers/blogRouter');
+app.use('/api/blogs', BlogRouter);
+
 //商品列表
 const productListR = require('./routers/productListR');
 app.use('/api/prolist', productListR);
