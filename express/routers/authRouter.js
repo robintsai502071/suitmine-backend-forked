@@ -155,6 +155,7 @@ router.post('/login', async (req, res, next) => {
   // 密碼符合就開始寫 session/cookie (或用 JWT 取代
   // （要先去 server.js 裡啟動 session）
   let returnUserInfo = {
+    user_id: user.id,
     email: user.email,
     name: user.name,
     photo: user.photo,
