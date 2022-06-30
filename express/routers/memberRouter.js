@@ -72,11 +72,59 @@ router.get('/:memberId/orders', async (req, res, next) => {
 // 取得特定 1 位 member 所有的禮物卡資料
 router.get('/:memberId/giftcards', async (req, res, next) => {
   let [giftcards] = await pool.execute(
-  `SELECT * FROM gift_card WHERE receiver_user_id = ?`,
+    `SELECT * FROM gift_card WHERE receiver_user_id = ?`,
     [req.params.memberId]
   );
 
   return res.json({ success: '獲取所有禮物卡資料成功！', giftcards });
+});
+
+// 取得特定 1 位 member 所有我的收藏資料
+router.get('/:memberId/my-favorites', async (req, res, next) => {
+  let [myFavorites] = await pool.execute(
+    `
+    SELECT
+    mf.id,
+    mf.product_id,
+    p.name AS product_name,
+    p.price AS product_price,
+    p.product_photo
+    FROM my_favorites mf
+    JOIN product p
+    ON mf.product_id = p.id
+    WHERE user_id = ? AND p.is_valid = 1
+    `,
+    [req.params.memberId]
+  );
+
+  return res.json({ success: '獲取所有我的收藏資料成功！', myFavorites });
+});
+
+// 在特定 1 位 member 新增 1 筆我的收藏產品
+router.post('/:memberId/my-favorites', async (req, res, next) => {
+  let [reponse] = await pool.execute(
+    `
+    INSERT INTO my_favorites
+     (user_id, product_id)
+     VALUES (?, ?)
+     `,
+    [req.params.memberId, req.body.product_id]
+  );
+
+  return res.json({ success: '已將此商品新增至我的收藏！' });
+});
+
+// 在特定 1 位 member 刪除 1 筆我的收藏產品
+router.delete('/:memberId/my-favorites', async (req, res, next) => {
+  let [reponse] = await pool.execute(
+    `
+    DELETE FROM my_favorites
+    WHERE user_id = ? AND product_id = ?
+     `,
+    [req.params.memberId, req.body.product_id]
+  );
+
+  return res.json({ success: '已從我的收藏刪除此商品！' });
 });
 
 // 取得特定 1 位 member 的特定 1 筆訂單資料

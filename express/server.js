@@ -64,6 +64,10 @@ app.use('/api/member', MemberRouter);
 const ReuploadAvatarRouter = require('./routers/reuploadAvatarRouter');
 app.use('/api/reupload/avatar', ReuploadAvatarRouter);
 
+// 我的收藏新增 / 刪除
+// const MyFavoritesRouter = require('./routers/myFavoritesRouter');
+// app.use('/api', MyFavoritesRouter);
+
 //商品列表
 const productListR = require('./routers/productListR');
 app.use('/api/prolist', productListR);
