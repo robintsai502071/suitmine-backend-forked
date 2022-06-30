@@ -69,6 +69,16 @@ router.get('/:memberId/orders', async (req, res, next) => {
   return res.json({ success: '獲取所有訂單資料成功！', orders });
 });
 
+// 取得特定 1 位 member 所有的禮物卡資料
+router.get('/:memberId/giftcards', async (req, res, next) => {
+  let [giftcards] = await pool.execute(
+  `SELECT * FROM gift_card WHERE receiver_user_id = ?`,
+    [req.params.memberId]
+  );
+
+  return res.json({ success: '獲取所有禮物卡資料成功！', giftcards });
+});
+
 // 取得特定 1 位 member 的特定 1 筆訂單資料
 router.get('/:memberId/orders/:orderId', async (req, res, next) => {
   let [order] = await pool.execute(
