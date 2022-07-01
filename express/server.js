@@ -52,6 +52,11 @@ app.use(
   express.static(path.join(__dirname, 'uploadedByUser', 'avatar'))
 );
 
+app.use(
+  '/blog/post',
+  express.static(path.join(__dirname, 'blog', 'post'))
+);
+
 // 註冊、登入、確認是否登入
 const AuthRouter = require('./routers/authRouter');
 app.use('/api/auth', AuthRouter);
@@ -67,6 +72,10 @@ app.use('/api/reupload/avatar', ReuploadAvatarRouter);
 // 我的收藏新增 / 刪除
 // const MyFavoritesRouter = require('./routers/myFavoritesRouter');
 // app.use('/api', MyFavoritesRouter);
+
+// 部落格
+const BlogRouter = require('./routers/blogRouter');
+app.use('/api/blogs', BlogRouter);
 
 //商品列表
 const productListR = require('./routers/productListR');
