@@ -100,28 +100,34 @@ const postImageUploader = multer({
 });
 
 // 上傳 blog thubnail API
-router.post('/upload-thumbnail', thumbnailUploader.single('photo'), async (req, res, next) => {
-  if (req.file) {
-    let link = '/blog/thumbnail/' + req.file.filename;
-    // response
-    res.json({ success: '圖片上傳成功', data: { link } });
-  } else {
-    res.status(400).json({ eror: '圖片上傳失敗！' });
+router.post(
+  '/upload-thumbnail',
+  thumbnailUploader.single('photo'),
+  async (req, res, next) => {
+    if (req.file) {
+      let link = '/blog/thumbnail/' + req.file.filename;
+      // response
+      res.json({ success: '圖片上傳成功', data: { link } });
+    } else {
+      res.status(400).json({ eror: '圖片上傳失敗！' });
+    }
   }
-});
-
+);
 
 // 上傳 blog post image API
-router.post('/upload-post-image', postImageUploader.single('photo'), async (req, res, next) => {
-  if (req.file) {
-    let link = '/blog/post/' + req.file.filename;
-    // response
-    res.json({ success: '圖片上傳成功', data: { link } });
-  } else {
-    res.status(400).json({ eror: '圖片上傳失敗！' });
+router.post(
+  '/upload-post-image',
+  postImageUploader.single('photo'),
+  async (req, res, next) => {
+    if (req.file) {
+      let link = '/blog/post/' + req.file.filename;
+      // response
+      res.json({ success: '圖片上傳成功', data: { link } });
+    } else {
+      res.status(400).json({ eror: '圖片上傳失敗！' });
+    }
   }
-});
-
+);
 
 // 撈出所有 blogs
 router.get('/', async (req, res, next) => {
@@ -132,18 +138,49 @@ router.get('/', async (req, res, next) => {
 
 // 撈出特定一筆 blog
 router.get('/:blogId', async (req, res, next) => {
-  let [blog] = await pool.execute(`SELECT * FROM blog WHERE id = ?`, [req.params.blogId]);
+  let [blog] = await pool.execute(`SELECT * FROM blog WHERE id = ?`, [
+    req.params.blogId,
+  ]);
 
   return res.json({ success: '獲取全部 blogs 成功！', blog });
 });
 
 // 新增一筆 blog
 router.post('/', async (req, res, next) => {
-  let [response] = await pool.execute(`
-  INSERT INTO blog (category_id, title, content)
-  VALUES (?,?,?)
-  `,[req.body.category_id,req.body.title,req.body.content]);
+  let [response] = await pool.execute(
+    `
+  INSERT INTO blog (category_id, title, content, images)
+  VALUES (?,?,?, ?)
+  `,
+    [req.body.category_id, req.body.title, req.body.content, req.body.images]
+  );
 
-  return res.json({ success: '新增 blog 成功！'});
+  return res.json({ success: '新增 blog 成功！' });
 });
+
+// 修改特定一筆 blog
+router.patch('/:blogId', async (req, res, next) => {
+  let [blog] = await pool.execute(
+    `UPDATE blog SET category_id = ?, content = ?, title = ?, images = ?  WHERE id = ?`,
+    [
+      req.body.category_id,
+      req.body.content,
+      req.body.title,
+      req.body.images,
+      req.params.blogId,
+    ]
+  );
+
+  return res.json({ success: '修改一筆 blog 成功！' });
+});
+
+// 刪除特定一筆 blog
+router.delete('/:blogId', async (req, res, next) => {
+  let [blog] = await pool.execute(`DELETE FROM blog  WHERE id = ?`, [
+    req.params.blogId,
+  ]);
+
+  return res.json({ success: '刪除一筆 blog 成功！' });
+});
+
 module.exports = router;
