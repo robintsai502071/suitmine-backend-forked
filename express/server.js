@@ -78,6 +78,7 @@ const BlogRouter = require('./routers/blogRouter');
 app.use('/api/blogs', BlogRouter);
 
 //商品列表
+app.use('/products', express.static(path.join(__dirname, 'products')));
 const productListR = require('./routers/productListR');
 app.use('/api/prolist', productListR);
 
