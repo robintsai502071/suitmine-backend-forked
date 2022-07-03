@@ -1,7 +1,6 @@
 // express router 起手式三行
 const express = require('express');
 const router = express.Router();
-
 const pool = require('../utils/db');
 // 引入驗證、雜湊套件
 const { body, validationResult } = require('express-validator');
@@ -10,7 +9,7 @@ const bcrypt = require('bcrypt');
 // 引入圖片處理套件 for image upload
 const multer = require('multer');
 // 引入 node.js 內建 path，(圖片儲存位置會用到)
-const path = require('path'); 
+const path = require('path');
 
 // 設定圖片儲存位置
 const storage = multer.diskStorage({
@@ -35,6 +34,7 @@ const storage = multer.diskStorage({
     // }
   },
 });
+
 // 這是一個中間件
 const uploader = multer({
   //設定儲存位置
@@ -68,6 +68,7 @@ const registerRules = [
     })
     .withMessage('密碼不一致'),
 ];
+
 // register
 router.post(
   '/register',
@@ -101,7 +102,7 @@ router.post(
     // 目前這個專案採用：儲存 avatar/xxxxxxx.jpg 這樣格式
     // 使用者不一定有上傳圖片，所以要確認 req 是否有 file
     let photo = req.file ? '/avatar/' + req.file.filename : '';
-    console.log(photo+'********************');
+    console.log(photo + '********************');
     // TODO: user 資料寫進資料庫
     await pool.execute(
       'INSERT INTO user (name, email, passwords, gender, age, photo) VALUES (?,?,?,?,?,?)',
