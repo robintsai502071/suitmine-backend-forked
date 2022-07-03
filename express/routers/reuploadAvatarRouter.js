@@ -54,7 +54,10 @@ const uploader = multer({
 
 router.post('/', uploader.single('photo'), async (req, res, next) => {
   if (req.file) {
-    let link = '/avatar/' + req.file.filename;
+    let link =
+      process.env.BASE_URL +
+      '/uploadedByUser/updatedAvatar/' +
+      req.file.filename;
     // response
     res.json({ success: '圖片上傳成功', data: { link } });
   } else {
