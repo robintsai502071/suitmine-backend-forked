@@ -6,6 +6,7 @@ const pool = require('../utils/db');
 const multer = require('multer');
 // 引入 node.js 內建 path，(圖片儲存位置會用到)
 const path = require('path');
+require('dotenv').config();
 
 // 設定貼文封面圖片儲存位置
 const thumbnailStorage = multer.diskStorage({
@@ -105,7 +106,7 @@ router.post(
   thumbnailUploader.single('photo'),
   async (req, res, next) => {
     if (req.file) {
-      let link = '/blog/thumbnail/' + req.file.filename;
+      let link = process.env.BASE_URL + '/blog/thumbnail/' + req.file.filename;
       // response
       res.json({ success: '圖片上傳成功', data: { link } });
     } else {
@@ -120,7 +121,7 @@ router.post(
   postImageUploader.single('photo'),
   async (req, res, next) => {
     if (req.file) {
-      let link = '/blog/post/' + req.file.filename;
+      let link = process.env.BASE_URL + '/blog/post/' + req.file.filename;
       // response
       res.json({ success: '圖片上傳成功', data: { link } });
     } else {

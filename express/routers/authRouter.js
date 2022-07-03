@@ -11,6 +11,7 @@ const bcrypt = require('bcrypt');
 const multer = require('multer');
 // 引入 node.js 內建 path，(圖片儲存位置會用到)
 const path = require('path');
+require('dotenv').config();
 
 // 設定圖片儲存位置
 const storage = multer.diskStorage({
@@ -101,7 +102,9 @@ router.post(
     // 記得不要把 http://locahost:3001 這個存進資料庫，因為正式環境部署會不同
     // 目前這個專案採用：儲存 avatar/xxxxxxx.jpg 這樣格式
     // 使用者不一定有上傳圖片，所以要確認 req 是否有 file
-    let photo = req.file ? '/avatar/' + req.file.filename : '';
+    let photo = req.file
+      ? process.env.BASE_URL + '/uploadedByUser/avatar/' + req.file.filename
+      : '';
 
     // TODO: user 資料寫進資料庫
     await pool.execute(
@@ -173,7 +176,7 @@ router.get('/logout', (req, res, next) => {
   // 因為我們會依靠判斷 req.session.member 有沒有資料來當作有沒有登入
   // 所以當我們把 req.session.member 設定成 null，那就登出了
   req.session.user = null;
-  return res.sendStatus(202)//.json({ success: '登出成功' });
+  return res.sendStatus(202); //.json({ success: '登出成功' });
 });
 
 // /api/auth/checkIsLogin
