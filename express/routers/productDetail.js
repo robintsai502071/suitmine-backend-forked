@@ -4,9 +4,10 @@ const pool = require('../utils/db');
 
 router.get('/', async (req, res, next) => {
   //   取得product中商品照片、價格、名稱
-  let [productdetail] =
-    await pool.execute(`SELECT product.id, product.name, product.product_photo, product.product_photo_detail1, product.product_photo_detail2, product.product_photo_detail3, product.product_photo_detail4, product.product_photo_detail5, product.product_photo_detail6, product.price, product.content, product.color_type, product.texture_type, product.pattern_type, user.name AS userName, user.photo AS userPhoto, comment.content AS commentContent, comment.create_time AS commentCreateTime FROM product JOIN orders ON orders.product_id = product.id JOIN comment ON comment.product_id = product.id JOIN user ON user.id = orders.user_id
-  `);
+  let [productdetail] = await pool.execute(
+    `SELECT comment.* ,product.*, orders.user_id AS ordersUser_id, user.name AS userName, user.phone AS userPhoto FROM comment JOIN product ON  comment.product_id = product.id JOIN orders ON comment.orders_id = orders.id JOIN user ON orders.user_id =user.id 
+    `
+  );
   console.log(productdetail);
   res.json(productdetail);
 });
