@@ -8,6 +8,7 @@ let pool = mysql.createPool({
   database: process.env.DB_NAME,
   // 為了 pool 新增的參數
   connectionLimit: 10,
+  dateStrings: true,
 });
 
 module.exports = pool;

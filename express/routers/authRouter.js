@@ -102,8 +102,10 @@ router.post(
     // 記得不要把 http://locahost:3001 這個存進資料庫，因為正式環境部署會不同
     // 目前這個專案採用：儲存 avatar/xxxxxxx.jpg 這樣格式
     // 使用者不一定有上傳圖片，所以要確認 req 是否有 file
+
+    // ? process.env.BASE_URL + '/uploadedByUser/avatar/' + req.file.filename
     let photo = req.file
-      ? process.env.BASE_URL + '/uploadedByUser/avatar/' + req.file.filename
+      ? 'http://localhost:3001' + '/uploadedByUser/avatar/' + req.file.filename
       : '';
 
     // TODO: user 資料寫進資料庫
