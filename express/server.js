@@ -54,6 +54,11 @@ app.use(
 
 app.use('/blog/post', express.static(path.join(__dirname, 'blog', 'post')));
 
+app.use(
+  '/blog/thumbnail',
+  express.static(path.join(__dirname, 'blog', 'thumbnail'))
+);
+
 // 註冊、登入、確認是否登入
 const AuthRouter = require('./routers/authRouter');
 app.use('/api/auth', AuthRouter);
