@@ -48,10 +48,10 @@ const thumbnailUploader = multer({
     }
   },
   // 檔案尺寸的過濾
-  limits: {
-    // 1k = 1024
-    fileSize: 200 * 1024,
-  },
+  // limits: {
+  //   // 1k = 1024
+  //   fileSize: 200 * 1024,
+  // },
 });
 
 // 設定貼文內文圖片儲存位置
@@ -94,10 +94,10 @@ const postImageUploader = multer({
     }
   },
   // 檔案尺寸的過濾
-  limits: {
-    // 1k = 1024
-    fileSize: 200 * 1024,
-  },
+  // limits: {
+  //   // 1k = 1024
+  //   fileSize: 200 * 1024,
+  // },
 });
 
 // 上傳 blog thubnail API
@@ -121,7 +121,9 @@ router.post(
   postImageUploader.single('photo'),
   async (req, res, next) => {
     if (req.file) {
-      let link = process.env.BASE_URL + '/blog/post/' + req.file.filename;
+      let link = '/blog/post/' + req.file.filename;
+      // let link = process.env.BASE_URL + '/blog/post/' + req.file.filename;
+      // let link = 'http://localhost:3001'+ '/blog/post/' + req.file.filename;
       // response
       res.json({ success: '圖片上傳成功', data: { link } });
     } else {
