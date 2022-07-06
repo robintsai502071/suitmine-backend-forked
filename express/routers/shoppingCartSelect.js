@@ -15,10 +15,20 @@ router.get('/:menberId', async (req, res, next) => {
   res.json({ user, giftCardList });
 });
 
-module.exports = router;
+// 新增訂單
+router.post('/:memberId/uploadOrder', async (req, res, next) => {
+  let [reponse] = await pool.execute(
+    `INSERT INTO orders( order_id, user_id, product_id, gift_card_id, count) VALUES ( ? , ? , ? , ? , ?)`,
+    [
+      req.params.order_id,
+      req.params.memberId,
+      req.params.product_id,
+      req.params.gift_card_id,
+      req.params.count,
+    ]
+  );
 
-//     id: 1,
-//     giver: '禮物卡暴發戶',
-//     giver_user_id: 1,
-//     receiver_user_id: 2,
-//     amount: 3000,
+  return res.json({ success: '已新增至我的訂單！' });
+});
+
+module.exports = router;
