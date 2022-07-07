@@ -7,7 +7,8 @@ router.post('/uploadOrder', async (req, res, next) => {
   // orderList
   const { v4: uuidv4 } = require('uuid');
   const orderId = uuidv4();
-  // console.log(req.body.giftCardlist[1].gift_card_id);
+  const arr = [];
+  // 新增商品訂單;
   for (let i = 0; i < req.body.productlist.length; i++) {
     let [reponse] = await pool.execute(
       `INSERT INTO orders( order_id, user_id, product_id, gift_card_id, count) VALUES ( ? , ? , ? , ? , ?)`,
@@ -20,17 +21,35 @@ router.post('/uploadOrder', async (req, res, next) => {
       ]
     );
   }
+
+  // 新增禮物卡
   for (let i = 0; i < req.body.productlist.length; i++) {
     let [reponse] = await pool.execute(
-      `INSERT INTO orders( order_id, user_id, product_giftcard_id, gift_card_id) VALUES ( ? , ? , ? , ? )`,
+      `INSERT INTO gift_card(giver, giver_user_id, receiver,  amount, message, receiver_email) VALUES ( ? , ? , ? , ? , ? , ? )`,
       [
-        orderId,
-        req.body.memberId,
-        req.body.giftCardlist[1].gift_card_id,
-        req.body.gift_card_id,
+        req.body.giftCardlist[i].giver,
+        req.body.giftCardlist[i].giver_user_id,
+        req.body.giftCardlist[i].reciver,
+        req.body.giftCardlist[i].amount,
+        req.body.giftCardlist[i].message,
+        req.body.giftCardlist[i].giftCardEmail,
       ]
     );
-    console.log(reponse);
+    // console.log(reponse);
+    arr.push(reponse.insertId);
+  }
+
+  console.log(arr[0]);
+  console.log(req.body.memberId);
+  console.log(orderId);
+  console.log(req.body.gift_card_id);
+
+  // 新增商品訂單;
+  for (let i = 0; i < arr.length; i++) {
+    let [reponse] = await pool.execute(
+      `INSERT INTO orders( order_id, user_id, product_giftcard_id, gift_card_id) VALUES ( ? , ? , ? , ?)`,
+      [orderId, req.body.memberId, arr[i], req.body.gift_card_id]
+    );
   }
 
   return res.json({ success: '已新增至我的訂單！' });
