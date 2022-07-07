@@ -11,7 +11,7 @@ router.get('/:memberId', async (req, res, next) => {
   member = member[0];
   const returnMemberInfo = {
     id: member.id,
-    name: member.name,
+    username: member.name,
     gender: member.gender,
     age: member.age,
     phone: member.phone,
@@ -28,14 +28,15 @@ router.get('/:memberId', async (req, res, next) => {
 router.patch('/:memberId', async (req, res, next) => {
   //   update 特定 1 位 member 的資料
   let [response] = await pool.execute(
-    `UPDATE user SET name = ?, gender = ?, phone = ?, photo = ?,address = ? WHERE id = ?`,
+    `UPDATE user SET name = ?, gender = ?, phone = ?, photo = ?, address = ?, email = ? WHERE id = ?`,
     [
-      req.body.name,
+      req.body.username,
       req.body.gender,
       req.body.phone,
       req.body.photo,
       req.body.address,
-      req.params.memberId,
+      req.body.email,
+      req.body.memberId,
     ]
   );
 

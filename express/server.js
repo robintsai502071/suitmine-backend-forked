@@ -53,6 +53,11 @@ app.use(
 );
 
 app.use(
+  '/uploadedByUser/updatedAvatar',
+  express.static(path.join(__dirname, 'uploadedByUser', 'updatedAvatar'))
+);
+
+app.use(
   '/blog/post',
   express.static(path.join(__dirname, 'blog', 'post'))
 );
