@@ -35,16 +35,11 @@ router.post('/uploadOrder', async (req, res, next) => {
         req.body.giftCardlist[i].giftCardEmail,
       ]
     );
-    // console.log(reponse);
+    // 找出該新增的禮物卡id
     arr.push(reponse.insertId);
   }
 
-  console.log(arr[0]);
-  console.log(req.body.memberId);
-  console.log(orderId);
-  console.log(req.body.gift_card_id);
-
-  // 新增商品訂單;
+  // 新增訂單-禮物卡(以新增的禮物卡id INSERT);
   for (let i = 0; i < arr.length; i++) {
     let [reponse] = await pool.execute(
       `INSERT INTO orders( order_id, user_id, product_giftcard_id, gift_card_id) VALUES ( ? , ? , ? , ?)`,
@@ -52,7 +47,14 @@ router.post('/uploadOrder', async (req, res, next) => {
     );
   }
 
-  return res.json({ success: '已新增至我的訂單！' });
+  // console.log(req.body.gift_card_id);
+  //修改已使用禮物卡狀態
+  let [response] = await pool.execute(
+    `UPDATE gift_card SET is_used= 1 WHERE id = ?`,
+    [req.body.gift_card_id]
+  );
+
+  return res.json({ success: '已新增商品至我的訂單、建立新禮物卡！' });
 });
 
 // 找特定會員購物車資料
