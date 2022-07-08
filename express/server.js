@@ -67,6 +67,7 @@ app.use(
   express.static(path.join(__dirname, 'blog', 'thumbnail'))
 );
 
+
 // 註冊、登入、確認是否登入
 const AuthRouter = require('./routers/authRouter');
 app.use('/api/auth', AuthRouter);
@@ -87,14 +88,20 @@ app.use('/api/reupload/avatar', ReuploadAvatarRouter);
 const BlogRouter = require('./routers/blogRouter');
 app.use('/api/blogs', BlogRouter);
 
-//商品列表
+//處理商品照片
 app.use('/products', express.static(path.join(__dirname, 'products')));
+
+//商品列表
 const productListR = require('./routers/productListR');
 app.use('/api/prolist', productListR);
 
 //商品細節顯示頁面
-const prodetail = require('./routers/productdetail');
-app.use('/api/prodetail', prodetail);
+const Prodetail = require('./routers/productDetail');
+app.use('/api/prodetail', Prodetail);
+
+//購物車
+const shoppingCart = require('./routers/shoppingCartSelect');
+app.use('/api/shoCart', shoppingCart);
 
 app.listen(3001, () => {
   console.log('Server running at port 3001');
