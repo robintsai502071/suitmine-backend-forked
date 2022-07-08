@@ -46,10 +46,10 @@ const uploader = multer({
     }
   },
   // 檔案尺寸的過濾
-  limits: {
-    // 1k = 1024
-    fileSize: 200 * 1024,
-  },
+  // limits: {
+  //   // 1k = 1024
+  //   fileSize: 200 * 1024,
+  // },
 });
 
 router.post('/', uploader.single('photo'), async (req, res, next) => {

@@ -52,12 +52,21 @@ app.use(
   express.static(path.join(__dirname, 'uploadedByUser', 'avatar'))
 );
 
-app.use('/blog/post', express.static(path.join(__dirname, 'blog', 'post')));
+app.use(
+  '/uploadedByUser/updatedAvatar',
+  express.static(path.join(__dirname, 'uploadedByUser', 'updatedAvatar'))
+);
+
+app.use(
+  '/blog/post',
+  express.static(path.join(__dirname, 'blog', 'post'))
+);
 
 app.use(
   '/blog/thumbnail',
   express.static(path.join(__dirname, 'blog', 'thumbnail'))
 );
+
 
 // 註冊、登入、確認是否登入
 const AuthRouter = require('./routers/authRouter');
