@@ -109,7 +109,7 @@ router.post(
       : '';
 
     // TODO: user 資料寫進資料庫
-    await pool.execute(
+    let [response] = await pool.execute(
       'INSERT INTO user (name, email, passwords, gender, age, photo) VALUES (?,?,?,?,?,?)',
       [
         req.body.username,
@@ -122,7 +122,7 @@ router.post(
     );
 
     // response
-    res.json({ response: '註冊成功！' });
+    res.json({ response: '註冊成功！', response });
   }
 );
 

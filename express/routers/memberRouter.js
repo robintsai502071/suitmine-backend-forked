@@ -28,7 +28,14 @@ router.get('/:memberId', async (req, res, next) => {
 router.patch('/:memberId', async (req, res, next) => {
   //   update 特定 1 位 member 的資料
   let [response] = await pool.execute(
-    `UPDATE user SET name = ?, gender = ?, phone = ?, photo = ?, address = ?, email = ? WHERE id = ?`,
+    `UPDATE user 
+     SET name = ?, 
+     gender = ?, 
+     phone = ?, 
+     photo = ?, 
+     address = ?, 
+     email = ? 
+     WHERE id = ?`,
     [
       req.body.username,
       req.body.gender,
@@ -36,6 +43,34 @@ router.patch('/:memberId', async (req, res, next) => {
       req.body.photo,
       req.body.address,
       req.body.email,
+      req.body.memberId,
+    ]
+  );
+
+  return res.json({ success: '更新資料成功！' });
+});
+
+// 修改特定 1 位 member 的身體資訊
+router.patch('/:memberId/body-info', async (req, res, next) => {
+  //   update 特定 1 位 member 的資料
+  let [response] = await pool.execute(
+    `UPDATE user 
+     SET height = ?, 
+     weight = ?, 
+     shoulder_width = ?, 
+     chest_width = ?, 
+     waist_width = ?, 
+     leg_length = ?, 
+     arm_length = ?, 
+     WHERE id = ?`,
+    [
+      req.body.height,
+      req.body.weight,
+      req.body.shoulder_width,
+      req.body.chest_width,
+      req.body.waist_width,
+      req.body.leg_length,
+      req.body.arm_length,
       req.body.memberId,
     ]
   );
