@@ -68,6 +68,8 @@ router.post('/uploadOrder', async (req, res, next) => {
       req.body.memberId,
     ]
   );
+
+  return res.json({ success: '已新增商品至我的訂單、建立新禮物卡！' });
 });
 
 // 找特定會員購物車資料
