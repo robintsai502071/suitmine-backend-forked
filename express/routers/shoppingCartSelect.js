@@ -49,9 +49,24 @@ router.post('/uploadOrder', async (req, res, next) => {
 
   // console.log(req.body.gift_card_id);
   //修改已使用禮物卡狀態
-  let [response] = await pool.execute(
+  let [reponse] = await pool.execute(
     `UPDATE gift_card SET is_used= 1 WHERE id = ?`,
     [req.body.gift_card_id]
+  );
+
+  //修改會員地址、身體資訊
+  let [response] = await pool.execute(
+    `UPDATE user SET height= ? ,shoulder_width= ? ,chest_width= ? ,waist_width= ? ,leg_length= ? ,arm_length= ? ,address= ?  WHERE id = ? `,
+    [
+      req.body.bodyList.height,
+      req.body.bodyList.shoulder_width,
+      req.body.bodyList.chest_width,
+      req.body.bodyList.waist_width,
+      req.body.bodyList.leg_length,
+      req.body.bodyList.arm_length,
+      req.body.updateAddress,
+      req.body.memberId,
+    ]
   );
 
   return res.json({ success: '已新增商品至我的訂單、建立新禮物卡！' });
