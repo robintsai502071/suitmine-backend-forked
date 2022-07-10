@@ -103,6 +103,10 @@ app.use('/api/shoCart', shoppingCart);
 const giftCard = require('./routers/giftCard');
 app.use('/api/giftCard', giftCard);
 
+//會員-我的最愛
+const myFavorite = require('./routers/myFavorite');
+app.use('/api/myFavorite', myFavorite);
+
 app.listen(3001, () => {
   console.log('Server running at port 3001');
 });
