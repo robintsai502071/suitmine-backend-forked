@@ -61,7 +61,7 @@ router.patch('/:memberId/body-info', async (req, res, next) => {
      chest_width = ?, 
      waist_width = ?, 
      leg_length = ?, 
-     arm_length = ?, 
+     arm_length = ?
      WHERE id = ?`,
     [
       req.body.height,
