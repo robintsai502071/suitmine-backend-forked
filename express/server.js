@@ -57,16 +57,12 @@ app.use(
   express.static(path.join(__dirname, 'uploadedByUser', 'updatedAvatar'))
 );
 
-app.use(
-  '/blog/post',
-  express.static(path.join(__dirname, 'blog', 'post'))
-);
+app.use('/blog/post', express.static(path.join(__dirname, 'blog', 'post')));
 
 app.use(
   '/blog/thumbnail',
   express.static(path.join(__dirname, 'blog', 'thumbnail'))
 );
-
 
 // 註冊、登入、確認是否登入
 const AuthRouter = require('./routers/authRouter');
@@ -102,6 +98,10 @@ app.use('/api/prodetail', Prodetail);
 //購物車
 const shoppingCart = require('./routers/shoppingCartSelect');
 app.use('/api/shoCart', shoppingCart);
+
+//會員-禮物卡
+const giftCard = require('./routers/giftCard');
+app.use('/api/giftCard', giftCard);
 
 app.listen(3001, () => {
   console.log('Server running at port 3001');
