@@ -134,6 +134,7 @@ router.post('/login', async (req, res, next) => {
     'SELECT id, name ,email, passwords, photo FROM user WHERE email = ?',
     [req.body.email]
   );
+
   // user 撈出來是一個陣列，有撈到資料代表有註冊過
   if (user.length === 0) {
     // 如果沒有註冊過就回覆錯誤
@@ -187,6 +188,7 @@ router.get('/checkIsLogin', (req, res, next) => {
     // 表示登入過
     return res.json(req.session.user);
   } else {
+    user;
     // 表示尚未登入
     return res.status(403).json({ error: '尚未登入' });
   }
