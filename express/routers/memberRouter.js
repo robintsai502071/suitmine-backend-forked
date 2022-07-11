@@ -128,7 +128,7 @@ router.get('/:memberId/my-favorites', async (req, res, next) => {
     FROM my_favorites mf
     JOIN product p
     ON mf.product_id = p.id
-    WHERE user_id = ? AND p.is_valid = 1
+    WHERE user_id = ? 
     `,
     [req.params.memberId]
   );
