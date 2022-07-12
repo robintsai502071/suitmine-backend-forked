@@ -53,10 +53,10 @@ const uploader = multer({
     }
   },
   // 檔案尺寸的過濾
-  limits: {
-    // 1k = 1024
-    fileSize: 200 * 1024,
-  },
+  // limits: {
+  //   // 1k = 1024
+  //   fileSize: 200 * 1024,
+  // },
 });
 
 // 宣告驗證規則，這些規則都是中介程式
