@@ -107,8 +107,7 @@ router.post(
   async (req, res, next) => {
     if (req.file) {
       // let link = process.env.BASE_URL + '/blog/thumbnail/' + req.file.filename;
-      let link =
-        'http://localhost:3001' + '/blog/thumbnail/' + req.file.filename;
+      let link = process.env.Base_URL + '/blog/thumbnail/' + req.file.filename;
       // response
       res.json({ success: '圖片上傳成功', data: { link } });
     } else {

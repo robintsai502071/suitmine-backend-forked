@@ -55,7 +55,7 @@ const uploader = multer({
 router.post('/', uploader.single('photo'), async (req, res, next) => {
   if (req.file) {
     let link =
-      'http://localhost:3001' +
+      process.env.Base_URL +
       '/uploadedByUser/updatedAvatar/' +
       req.file.filename;
     // response

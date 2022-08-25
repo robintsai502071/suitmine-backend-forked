@@ -105,7 +105,7 @@ router.post(
 
     // ? process.env.BASE_URL + '/uploadedByUser/avatar/' + req.file.filename
     let photo = req.file
-      ? 'http://localhost:3001' + '/uploadedByUser/avatar/' + req.file.filename
+      ? process.env.Base_URL + '/uploadedByUser/avatar/' + req.file.filename
       : '';
 
     // TODO: user 資料寫進資料庫
