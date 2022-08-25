@@ -23,7 +23,10 @@ app.use(
     store: new FileStore({
       // 把 sessions 存到 express 專案的外面
       // 單純想避開 nodemon 的監控檔案變動重啟 => 記得要自己新增資料夾
-      path: path.join(__dirname, '..', 'sessions'),
+      // path: path.join(__dirname, '..', 'sessions'),
+
+      // 2022/8 update deploy to heroku changes
+      path: path.join(__dirname),
     }),
     secret: process.env.SESSION_SECRET,
     resave: false,
