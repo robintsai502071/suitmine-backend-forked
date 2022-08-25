@@ -107,6 +107,6 @@ app.use('/api/giftCard', giftCard);
 const myFavorite = require('./routers/myFavorite');
 app.use('/api/myFavorite', myFavorite);
 
-app.listen(3001, () => {
-  console.log('Server running at port 3001');
+app.listen(process.env.PORT || 3001, () => {
+  console.log(`Server running at port ${process.env.PORT || 3001}`);
 });
