@@ -43,7 +43,6 @@ router.post('/register', registerRules, async (req, res, next) => {
   // 將前端送來的密碼進行雜湊
   let hashPassword = await bcrypt.hash(req.body.password, 10);
 
-
   // TODO: user 資料寫進資料庫
   let [response] = await pool.execute(
     'INSERT INTO user (name, email, password, gender, birth_date) VALUES (?,?,?,?,?)',
@@ -65,7 +64,7 @@ router.post('/login', async (req, res, next) => {
   // 確認資料有收到
   // 確認有沒有這個帳號
   let [user] = await pool.execute(
-    'SELECT id, name ,email, passwords, photo FROM user WHERE email = ?',
+    'SELECT id, name ,email, password, photo FROM user WHERE email = ?',
     [req.body.email]
   );
 
@@ -80,7 +79,7 @@ router.post('/login', async (req, res, next) => {
   // 如果有，確認密碼(用 bcrypt 雜湊套件提供的方法)
   let passwordCompareResult = await bcrypt.compare(
     req.body.password,
-    user.passwords
+    user.password
   );
 
   if (passwordCompareResult === false) {
@@ -101,22 +100,78 @@ router.post('/login', async (req, res, next) => {
     photo: user.photo,
   };
   // 因為 session 被修改過了，
-  // express-session 就會幫我們把 session 存入store (此專案存在另建立的 sessions 資料夾)
-  // 並把 session ID 存放在使用者瀏覽器cookie。
+  // express-session 就會幫我們把 session 存入 store (此專案直接放置於根目錄)
+  // 並把 session ID 存放在使用者瀏覽器 cookie。
   req.session.user = returnUserInfo;
   // // 回覆資料給前端
   return res.json({ message: '登入成功', user: returnUserInfo });
 });
 
+// /api/auth/login-with-google
+router.post('/login-with-google', async (req, res, next) => {
+  console.log(req.body);
+  // 確認這個有沒有這個帳號
+  let [user] = await pool.execute(
+    'SELECT id, uid, name ,email, password, photo FROM user WHERE email = ?',
+    [req.body.email]
+  );
 
+  // user 撈出來是一個陣列，有撈到資料代表有註冊過
+  // 情況一：如果沒有註冊過就直接建立一個新的帳號並且也要直接登入
+  if (user.length === 0) {
+    await pool.execute('INSERT INTO user (name, email, uid) VALUES (?,?,?)', [
+      req.body.displayName,
+      req.body.email,
+      req.body.uid,
+    ]);
 
+    // 開始寫 session/cookie (或用 JWT 取代
+    // （要先去 server.js 裡啟動 session）
+    let returnUserInfo = {
+      user_id: user.id,
+      uid: req.body.uid,
+      email: req.body.email,
+      name: req.body.displayName,
+      photo: null,
+    };
+    // 因為 session 被修改過了，
+    // express-session 就會幫我們把 session 存入 store (此專案直接放置於根目錄)
+    // 並把 session ID 存放在使用者瀏覽器 cookie。
+    req.session.user = returnUserInfo;
+
+    // 回覆資料給前端
+    return res.json({ message: '登入成功', user: returnUserInfo });
+  }
+
+  // 情況二：此 gmail 已於官網註冊過了
+  user = user[0];
+  if (user.uid === null) {
+    return res.status(400).json({
+      error: '登入失敗',
+      errorMessage: '此 Gmail 已於官方網站註冊過！請改用信箱/密碼方式登入。',
+    });
+  }
+
+  // 情況三：此 user 已用 google 登入過
+  let returnUserInfo = {
+    user_id: user.id,
+    uid: req.body.uid,
+    email: user.email,
+    name: user.name,
+    photo: null,
+  };
+
+  req.session.user = returnUserInfo;
+  // // 回覆資料給前端
+  return res.json({ message: '登入成功', user: returnUserInfo });
+});
 
 // /api/auth/logout
 router.get('/logout', (req, res, next) => {
   // 因為我們會依靠判斷 req.session.member 有沒有資料來當作有沒有登入
   // 所以當我們把 req.session.member 設定成 null，那就登出了
   req.session.user = null;
-  return res.sendStatus(202); //.json({ success: '登出成功' });
+  return res.sendStatus(202);
 });
 
 // /api/auth/checkIsLogin
