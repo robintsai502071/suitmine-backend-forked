@@ -6,6 +6,7 @@ const app = express();
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
+
 app.use(
   cors({
     // 為了要讓 browser 在 CORS 的情況下，還是幫我們送 cookie
@@ -36,36 +37,41 @@ app.use(
 
 // urlencoded 是把 data 放進 req.body 裡面！！
 // 但 express 這時候還看不懂 JSON 所以 req.body 此時是一個空物件
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true })); // extended 是 true 或 false 為使用的套件的差異
 
-// extended: false --> querystring 使用的套件的差異
+// extended: false --> querystring 
 // extended: true --> qs
+
 // 要讓 express 認得 req 裡 json 就要再加下面這行
 app.use(express.json());
+
+// ↓↓↓↓↓↓↓↓ 2022.09 因將佈署至 Heroku 靜態檔案將無法再存放，故註解不再使用 ↓↓↓↓↓↓↓↓
 
 // express 處理靜態資料
 // 靜態資料: html, css 檔案, javascript 檔案, 圖片, 影音檔...
 // express 少數內建的中間件 static
 // 方法1: 不要指定網址 => 將資料夾路徑與根目錄配對
-app.use(express.static(path.join(__dirname, 'uploadedByUser', 'avatar')));
+// app.use(express.static(path.join(__dirname, 'uploadedByUser', 'avatar')));
 // http://localhost:3001/images/test1.jpg
 // 方法2: 指定網址=> 將資料夾路徑與自訂路由配對
-app.use(
-  '/uploadedByUser/avatar',
-  express.static(path.join(__dirname, 'uploadedByUser', 'avatar'))
-);
+// app.use(
+//   '/uploadedByUser/avatar',
+//   express.static(path.join(__dirname, 'uploadedByUser', 'avatar'))
+// );
 
-app.use(
-  '/uploadedByUser/updatedAvatar',
-  express.static(path.join(__dirname, 'uploadedByUser', 'updatedAvatar'))
-);
+// app.use(
+//   '/uploadedByUser/updatedAvatar',
+//   express.static(path.join(__dirname, 'uploadedByUser', 'updatedAvatar'))
+// );
 
-app.use('/blog/post', express.static(path.join(__dirname, 'blog', 'post')));
+// app.use('/blog/post', express.static(path.join(__dirname, 'blog', 'post')));
 
-app.use(
-  '/blog/thumbnail',
-  express.static(path.join(__dirname, 'blog', 'thumbnail'))
-);
+// app.use(
+//   '/blog/thumbnail',
+//   express.static(path.join(__dirname, 'blog', 'thumbnail'))
+// );
+// ↑↑↑↑↑↑↑↑ 2022.09 因將佈署至 Heroku 靜態檔案將無法再存放，故註解不再使用 ↑↑↑↑↑↑↑↑
+
 
 // 註冊、登入、確認是否登入
 const AuthRouter = require('./routers/authRouter');
@@ -83,12 +89,6 @@ app.use('/api/reupload/avatar', ReuploadAvatarRouter);
 // const MyFavoritesRouter = require('./routers/myFavoritesRouter');
 // app.use('/api', MyFavoritesRouter);
 
-// 部落格
-const BlogRouter = require('./routers/blogRouter');
-app.use('/api/blogs', BlogRouter);
-
-//處理商品照片
-app.use('/products', express.static(path.join(__dirname, 'products')));
 
 //商品列表
 const productListR = require('./routers/productListR');
@@ -98,13 +98,6 @@ app.use('/api/prolist', productListR);
 const Prodetail = require('./routers/productDetail');
 app.use('/api/prodetail', Prodetail);
 
-//購物車
-const shoppingCart = require('./routers/shoppingCartSelect');
-app.use('/api/shoCart', shoppingCart);
-
-//會員-禮物卡
-const giftCard = require('./routers/giftCard');
-app.use('/api/giftCard', giftCard);
 
 //會員-我的最愛
 const myFavorite = require('./routers/myFavorite');

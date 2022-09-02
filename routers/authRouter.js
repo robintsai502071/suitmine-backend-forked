@@ -2,62 +2,12 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../utils/db');
+
 // 引入驗證、雜湊套件
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 
-// 引入圖片處理套件 for image upload
-const multer = require('multer');
-// 引入 node.js 內建 path，(圖片儲存位置會用到)
-const path = require('path');
 require('dotenv').config();
-
-// 設定圖片儲存位置
-const storage = multer.diskStorage({
-  // 設定儲存目的地(檔案夾)
-  // 就是要這要寫，套件規定的
-  destination: function (req, file, cb) {
-    // cb 的第一個參數是給 error，這邊單純存圖片，沒什麼錯誤就給 NULL
-    // 第二個參數指定圖片上傳到什麼位址，這邊設定要放在根目錄下的 uploadedByUser/avatar
-    cb(null, path.join(__dirname, '..', 'uploadedByUser', 'avatar'));
-  },
-  // 重新命名使用者上傳的圖片名稱
-  filename: function (req, file, cb) {
-    let ext = file.originalname.split('.').pop();
-    let newFilename = `${Date.now()}.${ext}`;
-    cb(null, newFilename);
-    // file
-    // {
-    //   fieldname: 'photo',
-    //   originalname: 'japan04-200.jpg',
-    //   encoding: '7bit',
-    //   mimetype: 'image/jpeg'
-    // }
-  },
-});
-
-// 這是一個中間件
-const uploader = multer({
-  //設定儲存位置
-  storage: storage,
-  // 過濾檔案類型
-  fileFilter: function (req, file, cb) {
-    if (
-      file.mimetype !== 'image/jpeg' &&
-      file.mimetype !== 'image/jpg' &&
-      file.mimetype !== 'image/png'
-    ) {
-      cb('這不是可被接受的格式!', false);
-    } else {
-      cb(null, true);
-    }
-  },
-  // 檔案尺寸的過濾
-  // limits: {
-  //   // 1k = 1024
-  //   fileSize: 200 * 1024,
-  // },
-});
 
 // 宣告驗證規則，這些規則都是中介程式
 const registerRules = [
@@ -71,60 +21,44 @@ const registerRules = [
 ];
 
 // /api/auth/register
-router.post(
-  '/register',
-  uploader.single('photo'), // 接收來自名為 photo 欄位的「單一」上傳檔案，並將檔案資訊存放在 req.file 上
-  registerRules,
-  async (req, res, next) => {
-    // TODO: 確認 email 有沒有註冊過
-    let [result] = await pool.execute('SELECT * FROM user WHERE email = ?', [
-      req.body.email,
-    ]);
-    if (result.length > 0)
-      return res.status(400).json({ error: '此信箱已被註冊過！' });
+router.post('/register', registerRules, async (req, res, next) => {
+  // 確認 email 有沒有註冊過
+  let [result] = await pool.execute('SELECT * FROM user WHERE email = ?', [
+    req.body.email,
+  ]);
 
-    // TODO: 驗證資料欄位，會回傳一個陣列，若沒有驗證錯誤會回傳空陣列
-    const validateResults = validationResult(req);
-    // 不是 empty --> 表示有欄位沒通過驗證; 這邊 .isEmpty()、.array() 都是套件提供
-    if (!validateResults.isEmpty()) {
-      // 蒐集驗證失敗結果轉為一個陣列
-      let error = validateResults.array();
-      // 回傳失敗結果給前端
-      return res.status(400).json({ errorColumns: error });
-    }
+  if (result.length > 0)
+    return res.status(400).json({ error: '此信箱已被註冊過！' });
 
-    // 將前端送來的密碼進行雜湊
-    let hashPassword = await bcrypt.hash(req.body.password, 10);
-
-    // 圖片處理完成後，會被放在 req 物件裡
-    // 最終前端需要的網址: http://localhost:3001/uploadedByUser/avatar/xxxxxxx.jpg
-    // 可以由後端來組合這個網址，也可以由前端來組合
-    // 記得不要把 http://locahost:3001 這個存進資料庫，因為正式環境部署會不同
-    // 目前這個專案採用：儲存 avatar/xxxxxxx.jpg 這樣格式
-    // 使用者不一定有上傳圖片，所以要確認 req 是否有 file
-
-    // ? process.env.BASE_URL + '/uploadedByUser/avatar/' + req.file.filename
-    let photo = req.file
-      ? process.env.Base_URL + '/uploadedByUser/avatar/' + req.file.filename
-      : '';
-
-    // TODO: user 資料寫進資料庫
-    let [response] = await pool.execute(
-      'INSERT INTO user (name, email, passwords, gender, age, photo) VALUES (?,?,?,?,?,?)',
-      [
-        req.body.username,
-        req.body.email,
-        hashPassword,
-        req.body.gender,
-        req.body.age,
-        photo,
-      ]
-    );
-
-    // response
-    res.json({ response: '註冊成功！', response });
+  // 驗證資料欄位，會回傳一個陣列，若沒有驗證錯誤會回傳空陣列
+  const validateResults = validationResult(req);
+  // 不是 empty --> 表示有欄位沒通過驗證; 這邊 .isEmpty()、.array() 都是套件提供
+  if (!validateResults.isEmpty()) {
+    // 蒐集驗證失敗結果轉為一個陣列
+    let error = validateResults.array();
+    // 回傳失敗結果給前端
+    return res.status(400).json({ errorColumns: error });
   }
-);
+
+  // 將前端送來的密碼進行雜湊
+  let hashPassword = await bcrypt.hash(req.body.password, 10);
+
+
+  // TODO: user 資料寫進資料庫
+  let [response] = await pool.execute(
+    'INSERT INTO user (name, email, password, gender, birth_date) VALUES (?,?,?,?,?)',
+    [
+      req.body.username,
+      req.body.email,
+      hashPassword,
+      req.body.gender,
+      req.body.birth_date,
+    ]
+  );
+
+  // response
+  res.json({ response: '註冊成功！', response });
+});
 
 // /api/auth/login
 router.post('/login', async (req, res, next) => {
@@ -173,6 +107,9 @@ router.post('/login', async (req, res, next) => {
   // // 回覆資料給前端
   return res.json({ message: '登入成功', user: returnUserInfo });
 });
+
+
+
 
 // /api/auth/logout
 router.get('/logout', (req, res, next) => {
