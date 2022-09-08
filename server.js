@@ -39,7 +39,7 @@ app.use(
 // 但 express 這時候還看不懂 JSON 所以 req.body 此時是一個空物件
 app.use(express.urlencoded({ extended: true })); // extended 是 true 或 false 為使用的套件的差異
 
-// extended: false --> querystring 
+// extended: false --> querystring
 // extended: true --> qs
 
 // 要讓 express 認得 req 裡 json 就要再加下面這行
@@ -72,7 +72,6 @@ app.use(express.json());
 // );
 // ↑↑↑↑↑↑↑↑ 2022.09 因將佈署至 Heroku 靜態檔案將無法再存放，故註解不再使用 ↑↑↑↑↑↑↑↑
 
-
 // 註冊、登入、確認是否登入
 const AuthRouter = require('./routers/authRouter');
 app.use('/api/auth', AuthRouter);
@@ -89,15 +88,13 @@ app.use('/api/reupload/avatar', ReuploadAvatarRouter);
 // const MyFavoritesRouter = require('./routers/myFavoritesRouter');
 // app.use('/api', MyFavoritesRouter);
 
-
 //商品列表
-const productListR = require('./routers/productListR');
-app.use('/api/prolist', productListR);
+const productListRouter = require('./routers/productListRouter');
+app.use('/api/product-list', productListRouter);
 
 //商品細節顯示頁面
 const Prodetail = require('./routers/productDetail');
 app.use('/api/prodetail', Prodetail);
-
 
 //會員-我的最愛
 const myFavorite = require('./routers/myFavorite');

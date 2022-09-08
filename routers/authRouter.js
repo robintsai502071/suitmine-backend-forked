@@ -109,7 +109,7 @@ router.post('/login', async (req, res, next) => {
 
 // /api/auth/login-with-google
 router.post('/login-with-google', async (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
   // 確認這個有沒有這個帳號
   let [user] = await pool.execute(
     'SELECT id, uid, name ,email, password, photo FROM user WHERE email = ?',
@@ -175,12 +175,12 @@ router.get('/logout', (req, res, next) => {
 });
 
 // /api/auth/checkIsLogin
-router.get('/checkIsLogin', (req, res, next) => {
+router.get('/check-is-login', (req, res, next) => {
+  // console.log(req.session);
   if (req.session.user) {
     // 表示登入過
     return res.json(req.session.user);
   } else {
-    user;
     // 表示尚未登入
     return res.status(403).json({ error: '尚未登入' });
   }
