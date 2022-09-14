@@ -43,7 +43,7 @@ router.post('/register', registerRules, async (req, res, next) => {
   // 將前端送來的密碼進行雜湊
   let hashPassword = await bcrypt.hash(req.body.password, 10);
 
-  // TODO: user 資料寫進資料庫
+  // 將 user 資料寫進資料庫
   let [response] = await pool.execute(
     'INSERT INTO user (name, email, password, gender, birth_date) VALUES (?,?,?,?,?)',
     [
@@ -54,9 +54,15 @@ router.post('/register', registerRules, async (req, res, next) => {
       req.body.birth_date,
     ]
   );
+  const user_id = response.insertId;
 
-  // response
-  res.json({ response: '註冊成功！', response });
+  const returnUserInfo = {
+    user_id,
+    email: req.body.email,
+    name: req.body.username,
+  };
+  req.session.user = returnUserInfo;
+  res.json({ success: '註冊成功！', user: returnUserInfo });
 });
 
 // /api/auth/login
@@ -109,7 +115,6 @@ router.post('/login', async (req, res, next) => {
 
 // /api/auth/login-with-google
 router.post('/login-with-google', async (req, res, next) => {
-  // console.log(req.body);
   // 確認這個有沒有這個帳號
   let [user] = await pool.execute(
     'SELECT id, uid, name ,email, password, photo FROM user WHERE email = ?',
