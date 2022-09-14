@@ -97,7 +97,7 @@ router.post('/login', async (req, res, next) => {
     user_id: user.id,
     email: user.email,
     name: user.name,
-    photo: user.photo,
+    // photo: user.photo,
   };
   // 因為 session 被修改過了，
   // express-session 就會幫我們把 session 存入 store (此專案直接放置於根目錄)
@@ -132,7 +132,7 @@ router.post('/login-with-google', async (req, res, next) => {
       uid: req.body.uid,
       email: req.body.email,
       name: req.body.displayName,
-      photo: null,
+      // photo: null,
     };
     // 因為 session 被修改過了，
     // express-session 就會幫我們把 session 存入 store (此專案直接放置於根目錄)
@@ -158,7 +158,7 @@ router.post('/login-with-google', async (req, res, next) => {
     uid: req.body.uid,
     email: user.email,
     name: user.name,
-    photo: null,
+    // photo: null,
   };
 
   req.session.user = returnUserInfo;

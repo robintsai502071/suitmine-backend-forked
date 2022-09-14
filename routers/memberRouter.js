@@ -4,46 +4,79 @@ const pool = require('../utils/db');
 
 // 取得特定 1 位 member 的資料
 router.get('/:memberId', async (req, res, next) => {
-  let [member] = await pool.execute(`SELECT * FROM user WHERE id = ?`, [
-    req.params.memberId,
-  ]);
+  let [member] = await pool.execute(
+    `SELECT 
+  id,
+  uid,
+  name AS username,
+  email,
+  phone,
+  gender,
+  birth_date,
+  address,
+  weight,
+  height,
+  shoulder_width,
+  chest_width,
+  waist_width,
+  butt_width,
+  leg_length,
+  arm_length 
+  FROM user WHERE id = ?`,
+    [req.params.memberId]
+  );
 
-  member = member[0];
-  const returnMemberInfo = {
-    id: member.id,
-    username: member.name,
-    gender: member.gender,
-    age: member.age,
-    phone: member.phone,
-    photo: member.photo,
-    email: member.email,
-    valid: member.valid,
-    address: member.address,
-  };
+  memberProfile = member[0];
 
-  return res.json({ success: '獲取資料成功！', data: returnMemberInfo });
+  // const returnMemberInfo = {
+  //   id: member.id,
+  //   username: member.name,
+  //   gender: member.gender,
+  //   age: member.age,
+  //   phone: member.phone,
+  //   photo: member.photo,
+  //   email: member.email,
+  //   valid: member.valid,
+  //   address: member.address,
+  // };
+
+  return res.json({ success: '獲取資料成功！', memberProfile });
 });
 
-//   修改特定 1 位 member 的資料
+// 修改特定 1 位 member 的資料
 router.patch('/:memberId', async (req, res, next) => {
   //   update 特定 1 位 member 的資料
-  let [response] = await pool.execute(
-    `UPDATE user 
-     SET name = ?, 
-     gender = ?, 
-     phone = ?, 
-     photo = ?, 
-     address = ?, 
-     email = ? 
+  await pool.execute(
+    `UPDATE user
+     SET name = ?,
+     gender = ?,
+     phone = ?,
+     address = ?,
+     height = ?,
+     weight = ?,
+     arm_length = ?,
+     chest_width = ?,
+     leg_length = ?,
+     shoulder_width = ?,
+     waist_width = ?,
+     butt_width = ?,
+     birth_date= ?
      WHERE id = ?`,
     [
       req.body.username,
       req.body.gender,
       req.body.phone,
-      req.body.photo,
       req.body.address,
-      req.body.email,
-      req.body.memberId,
+      req.body.height,
+      req.body.weight,
+      req.body.arm_length,
+      req.body.chest_width,
+      req.body.leg_length,
+      req.body.shoulder_width,
+      req.body.waist_width,
+      req.body.butt_width,
+      req.body.birth_date,
+      req.params.memberId,
     ]
   );
 
