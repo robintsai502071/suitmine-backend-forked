@@ -25,21 +25,10 @@ router.get('/:memberId', async (req, res, next) => {
   FROM user WHERE id = ?`,
     [req.params.memberId]
   );
-
+  if (member.length === 0) {
+    return res.status(400).json({ error: '獲取資料失敗！請重新登入' });
+  }
   memberProfile = member[0];
-
-  // const returnMemberInfo = {
-  //   id: member.id,
-  //   username: member.name,
-  //   gender: member.gender,
-  //   age: member.age,
-  //   phone: member.phone,
-  //   photo: member.photo,
-  //   email: member.email,
-  //   valid: member.valid,
-  //   address: member.address,
-  // };
-
   return res.json({ success: '獲取資料成功！', memberProfile });
 });
 
