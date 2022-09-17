@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../utils/db');
+const { v4: uuidv4 } = require('uuid');
 
 // 取得特定 1 位 member 的資料
 router.get('/:memberId', async (req, res, next) => {
@@ -72,35 +73,7 @@ router.patch('/:memberId', async (req, res, next) => {
   return res.json({ success: '更新資料成功！' });
 });
 
-// 修改特定 1 位 member 的身體資訊
-router.patch('/:memberId/body-info', async (req, res, next) => {
-  //   update 特定 1 位 member 的資料
-  let [response] = await pool.execute(
-    `UPDATE user 
-     SET height = ?, 
-     weight = ?, 
-     shoulder_width = ?, 
-     chest_width = ?, 
-     waist_width = ?, 
-     leg_length = ?, 
-     arm_length = ?
-     WHERE id = ?`,
-    [
-      req.body.height,
-      req.body.weight,
-      req.body.shoulder_width,
-      req.body.chest_width,
-      req.body.waist_width,
-      req.body.leg_length,
-      req.body.arm_length,
-      req.body.memberId,
-    ]
-  );
-
-  return res.json({ success: '更新資料成功！' });
-});
-
-// 取得特定 1 位 member 所有的訂單資料
+// **取得特定 1 位 member 所有的訂單資料
 router.get('/:memberId/orders', async (req, res, next) => {
   let [orders] = await pool.execute(
     `
@@ -127,17 +100,91 @@ router.get('/:memberId/orders', async (req, res, next) => {
   return res.json({ success: '獲取所有訂單資料成功！', orders });
 });
 
-// 取得特定 1 位 member 所有的禮物卡資料
-router.get('/:memberId/giftcards', async (req, res, next) => {
-  let [giftcards] = await pool.execute(
-    `SELECT * FROM gift_card WHERE receiver_user_id = ?`,
-    [req.params.memberId]
+// 取得特定 1 位 member 的特定 1 筆訂單資料
+router.get('/:memberId/orders/:orderId', async (req, res, next) => {
+  const [order] = await pool.execute(
+    `
+  SELECT
+  o.id,
+  o.order_uuid,
+  o.user_id,
+  o.cart_total,
+  o.shipping_fee,
+  o.receiver_name,
+  o.receiver_phone,
+  o.receiver_address,
+  o.create_time,
+  u.name AS customer_name,
+  u.birth_date AS customer_birth,
+  u.phone AS customer_phone
+  FROM 
+  orders o
+  JOIN user u
+  ON o.user_id = u.id
+  WHERE o.user_id = ? AND o.id = ?
+  `,
+    [req.params.memberId, req.params.orderId]
+  );
+  const orderDetail = order[0];
+  const [orderItems] = await pool.execute(
+    `
+  SELECT 
+  oi.id,
+  oi.order_id,
+  oi.product_id,
+  oi.quantity,
+  p.name AS product_name,
+  p.product_photo,
+  p.price AS product_price
+  FROM 
+  order_items oi
+  JOIN product p
+  ON oi.product_id = p.id
+  WHERE oi.order_id = ?
+  `,
+    [req.params.orderId]
   );
 
-  return res.json({ success: '獲取所有禮物卡資料成功！', giftcards });
+  return res.json({
+    success: '獲取一筆訂單資料成功！',
+    orderDetail,
+    orderItems,
+  });
 });
 
-// 取得特定 1 位 member 所有我的收藏資料
+// 建立特定 1 位 member 1 筆訂單資料
+router.post('/:memberId/orders', async (req, res, next) => {
+  const { formData, cartSummary } = req.body;
+  const { receiverName, receiverPhone, receiverAddress } = formData;
+  const { cartItems, cartTotal, shippingFee } = cartSummary;
+
+  let [response] = await pool.execute(
+    `INSERT INTO orders
+    (order_uuid, user_id, cart_total, shipping_fee, receiver_name, receiver_phone, receiver_address)
+    VALUES (?,?,?,?,?,?,?)`,
+    [
+      uuidv4(),
+      req.params.memberId,
+      cartTotal,
+      shippingFee,
+      receiverName,
+      receiverPhone,
+      receiverAddress,
+    ]
+  );
+  const lastInsertedOrderId = response.insertId;
+  for (let i = 0; i < cartItems.length; i++) {
+    await pool.execute(
+      `INSERT INTO order_items
+      (order_id, product_id, quantity)
+      VALUES (?,?,?)`,
+      [lastInsertedOrderId, cartItems[i].id, cartItems[i].quantity]
+    );
+  }
+  return res.json({ success: '建立訂單成功！', order_id: lastInsertedOrderId });
+});
+
+// **取得特定 1 位 member 所有我的收藏資料
 router.get('/:memberId/my-favorites', async (req, res, next) => {
   let [myFavorites] = await pool.execute(
     `
@@ -185,61 +232,6 @@ router.delete('/:memberId/my-favorites', async (req, res, next) => {
   return res.json({ success: '已從我的收藏刪除此商品！' });
 });
 
-// 取得特定 1 位 member 的特定 1 筆訂單資料
-router.get('/:memberId/orders/:orderId', async (req, res, next) => {
-  let [order] = await pool.execute(
-    `
-  SELECT
-  o.order_id,
-  o.product_id,
-  p.name AS product_name,
-  p.price AS product_price,
-  p.product_photo,
-  o.count,
-  o.create_time AS order_create_time,
-  o.deliver_time AS order_deliver_time,
-  o.finish_time AS order_finish_time,
-  o.is_valid AS order_is_valid 
-  FROM 
-  orders o
-  JOIN product p
-  ON o.product_id = p.id
-  WHERE user_id =? AND  order_id = ?
-  `,
-    [req.params.memberId, req.params.orderId]
-  );
 
-  // 列出此訂單買的所有商品
-  const order_content = [];
-  for (let i = 0; i < order.length; i++) {
-    order_content.push({
-      product_id: order[i].product_id,
-      product_name: order[i].product_name,
-      product_price: order[i].product_price,
-      product_count: order[i].count,
-      product_photo: order[i].product_photo,
-      amount_subtotal: order[i].product_price * order[i].count,
-    });
-  }
-
-  // 計算出此訂單的總金額
-  let amount_total = 0;
-  for (let i = 0; i < order_content.length; i++) {
-    amount_total += order_content[i].amount_subtotal;
-  }
-
-  order = {
-    order_summary: {
-      order_id: order[0].order_id,
-      order_create_time: order[0].order_create_time,
-      order_deliver_time: order[0].order_deliver_time,
-      order_finish_time: order[0].order_finish_time,
-      order_amount_total: amount_total,
-      order_is_valid: order[0].order_is_valid,
-    },
-    order_content,
-  };
-  return res.json({ success: '獲取一筆訂單資料成功！', order });
-});
 
 module.exports = router;

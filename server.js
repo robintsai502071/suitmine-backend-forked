@@ -22,11 +22,7 @@ let FileStore = require('session-file-store')(expressSession);
 app.use(
   expressSession({
     store: new FileStore({
-      // 把 sessions 存到 express 專案的外面
-      // 單純想避開 nodemon 的監控檔案變動重啟 => 記得要自己新增資料夾
-      // path: path.join(__dirname, '..', 'sessions'),
-
-      // 2022/8 update deploy to heroku changes
+      // 將 session 檔案存於根目錄
       path: path.join(__dirname),
     }),
     secret: process.env.SESSION_SECRET,
@@ -35,7 +31,7 @@ app.use(
   })
 );
 
-// urlencoded 是把 data 放進 req.body 裡面！！
+// urlencoded 是把 data 放進 req.body 裡面
 // 但 express 這時候還看不懂 JSON 所以 req.body 此時是一個空物件
 app.use(express.urlencoded({ extended: true })); // extended 是 true 或 false 為使用的套件的差異
 
@@ -73,6 +69,7 @@ app.use(express.json());
 // ↑↑↑↑↑↑↑↑ 2022.09 因將佈署至 Heroku 靜態檔案將無法再永久存放，故註解不再使用 ↑↑↑↑↑↑↑↑
 
 // 註冊、登入、確認是否登入
+
 const AuthRouter = require('./routers/authRouter');
 app.use('/api/auth', AuthRouter);
 
@@ -80,9 +77,6 @@ app.use('/api/auth', AuthRouter);
 const MemberRouter = require('./routers/memberRouter');
 app.use('/api/member', MemberRouter);
 
-// 讓會員重新上傳大頭貼 => 修改個人資料頁面用
-const ReuploadAvatarRouter = require('./routers/reuploadAvatarRouter');
-app.use('/api/reupload/avatar', ReuploadAvatarRouter);
 
 // 我的收藏新增 / 刪除
 // const MyFavoritesRouter = require('./routers/myFavoritesRouter');
