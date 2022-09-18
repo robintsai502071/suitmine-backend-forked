@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require('../utils/db');
 const { v4: uuidv4 } = require('uuid');
 
-// 取得特定 1 位 member 的資料
+// 取得特定 1 位 member 的資料（含訂單）
 router.get('/:memberId', async (req, res, next) => {
   let [member] = await pool.execute(
     `SELECT 
@@ -30,7 +30,16 @@ router.get('/:memberId', async (req, res, next) => {
     return res.status(400).json({ error: '獲取資料失敗！請重新登入' });
   }
   memberProfile = member[0];
-  return res.json({ success: '獲取資料成功！', memberProfile });
+  const [orders] = await pool.execute(
+    `
+  SELECT *
+  FROM 
+  orders
+  WHERE user_id = ?
+  `,
+    [req.params.memberId]
+  );
+  return res.json({ success: '獲取資料成功！', memberProfile, orders });
 });
 
 // 修改特定 1 位 member 的資料
@@ -71,33 +80,6 @@ router.patch('/:memberId', async (req, res, next) => {
   );
 
   return res.json({ success: '更新資料成功！' });
-});
-
-// **取得特定 1 位 member 所有的訂單資料
-router.get('/:memberId/orders', async (req, res, next) => {
-  let [orders] = await pool.execute(
-    `
-  SELECT 
-  o.order_id,
-  o.product_id,
-  p.name AS product_name,
-  p.price AS product_price,
-  p.product_photo,
-  o.count,
-  o.create_time AS order_create_time,
-  o.deliver_time AS order_deliver_time,
-  o.finish_time AS order_finish_time,
-  o.is_valid AS order_is_valid
-  FROM orders o
-  JOIN product p
-  ON o.product_id = p.id
-  WHERE user_id = ?
-  GROUP BY o.order_id
-  `,
-    [req.params.memberId]
-  );
-
-  return res.json({ success: '獲取所有訂單資料成功！', orders });
 });
 
 // 取得特定 1 位 member 的特定 1 筆訂單資料
@@ -231,7 +213,5 @@ router.delete('/:memberId/my-favorites', async (req, res, next) => {
 
   return res.json({ success: '已從我的收藏刪除此商品！' });
 });
-
-
 
 module.exports = router;
