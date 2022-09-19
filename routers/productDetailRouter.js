@@ -4,7 +4,28 @@ const pool = require('../utils/db');
 
 router.get('/:productId', async (req, res, next) => {
   let [productDetail] = await pool.execute(
-    'SELECT * FROM product WHERE id = ?',
+    `SELECT 
+  p.id,
+  p.name AS product_name,
+  pc.name AS product_category,
+  pc.id AS product_category_id,
+  p.price AS product_price,
+  p.description,
+  p.color_spec,
+  p.pattern_spec,
+  p.fabric_spec,
+  p.fabric_weight_spec,
+  p.product_photo,
+  p.product_photo_detail1,
+  p.product_photo_detail2,
+  p.product_photo_detail3,
+  p.product_photo_detail4,
+  p.product_photo_detail5,
+  p.product_photo_detail6
+  FROM product p
+  JOIN product_category pc
+  ON p.product_category_id = pc.id
+  WHERE p.id = ?`,
     [req.params.productId]
   );
   productDetail = productDetail[0];
