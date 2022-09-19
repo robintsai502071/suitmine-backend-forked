@@ -77,11 +77,6 @@ app.use('/api/auth', AuthRouter);
 const MemberRouter = require('./routers/memberRouter');
 app.use('/api/member', MemberRouter);
 
-
-// 我的收藏新增 / 刪除
-// const MyFavoritesRouter = require('./routers/myFavoritesRouter');
-// app.use('/api', MyFavoritesRouter);
-
 //商品列表
 const productListRouter = require('./routers/productListRouter');
 app.use('/api/products', productListRouter);

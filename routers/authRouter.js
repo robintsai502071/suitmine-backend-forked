@@ -206,15 +206,21 @@ const changePasswordRules = [
 ];
 
 router.post('/change-password', changePasswordRules, async (req, res, next) => {
+
+  // 測試帳號不能修改密碼
+  if (req.body.user_id === 44) {
+    return res.status(400).json({ error: '很抱歉，此帳號為測試帳號，無法修改密碼！' });
+  }
+
   // 前端的要放一個隱形的 input 塞 id 送來後端
-  let [user] = await pool.execute(`SELECT passwords FROM user WHERE id = ?`, [
+  let [user] = await pool.execute(`SELECT password FROM user WHERE id = ?`, [
     req.body.user_id,
   ]);
 
   // 比對輸入密碼與資料庫的密碼是否一致(用 bcrypt 雜湊套件提供的方法)
   let passwordCompareResult = await bcrypt.compare(
     req.body.currentPassword,
-    user[0]['passwords'] // 使用者存入資料庫的密碼(經雜湊)
+    user[0]['password'] // 使用者存入資料庫的密碼(經雜湊)
   );
 
   // 如果比對錯誤就返回錯誤給前端
@@ -234,7 +240,7 @@ router.post('/change-password', changePasswordRules, async (req, res, next) => {
 
   // 驗證都通過就將新密碼雜湊後 update 至資料庫
   let newHashPassword = await bcrypt.hash(req.body.newPassword, 10);
-  await pool.execute(`UPDATE user SET passwords = ? WHERE id = ?`, [
+  await pool.execute(`UPDATE user SET password = ? WHERE id = ?`, [
     newHashPassword,
     req.body.user_id,
   ]);

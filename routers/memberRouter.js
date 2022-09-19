@@ -166,52 +166,25 @@ router.post('/:memberId/orders', async (req, res, next) => {
   return res.json({ success: '建立訂單成功！', order_id: lastInsertedOrderId });
 });
 
-// **取得特定 1 位 member 所有我的收藏資料
-router.get('/:memberId/my-favorites', async (req, res, next) => {
-  let [myFavorites] = await pool.execute(
+// 確認 member 是否已填寫身體資訊
+router.get('/:memberId/check-if-body-info-filled', async (req, res, next) => {
+  // 從資料庫撈取身體身體資訊去判斷，這裡選擇 height
+  const [response] = await pool.execute(
     `
-    SELECT
-    mf.id,
-    mf.product_id,
-    p.name AS product_name,
-    p.price AS product_price,
-    p.product_photo
-    FROM my_favorites mf
-    JOIN product p
-    ON mf.product_id = p.id
-    WHERE user_id = ? 
-    `,
+  SELECT height
+  FROM user
+  WHERE id = ?
+  `,
     [req.params.memberId]
   );
+  const { height } = response[0];
 
-  return res.json({ success: '獲取所有我的收藏資料成功！', myFavorites });
-});
+  if (!height)
+    return res.status(403).json({ error: '很抱歉，您還未填寫身體資訊，請您完成後才能繼續！' });
 
-// 在特定 1 位 member 新增 1 筆我的收藏產品
-router.post('/:memberId/my-favorites', async (req, res, next) => {
-  let [reponse] = await pool.execute(
-    `
-    INSERT INTO my_favorites
-     (user_id, product_id)
-     VALUES (?, ?)
-     `,
-    [req.params.memberId, req.body.product_id]
-  );
-
-  return res.json({ success: '已將此商品新增至我的收藏！' });
-});
-
-// 在特定 1 位 member 刪除 1 筆我的收藏產品
-router.delete('/:memberId/my-favorites', async (req, res, next) => {
-  let [reponse] = await pool.execute(
-    `
-    DELETE FROM my_favorites
-    WHERE user_id = ? AND product_id = ?
-     `,
-    [req.params.memberId, req.body.product_id]
-  );
-
-  return res.json({ success: '已從我的收藏刪除此商品！' });
+  return res.json({
+    success: '此用戶已填寫身體資訊！',
+  });
 });
 
 module.exports = router;
