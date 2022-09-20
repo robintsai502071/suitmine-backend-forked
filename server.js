@@ -28,6 +28,13 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    proxy: true, // Required for Heroku
+    name: 'suitmine', // This needs to be unique per-host.
+    cookie: {
+      secure: true, // required for cookies to work on HTTPS
+      httpOnly: false,
+      sameSite: 'none',
+    },
   })
 );
 

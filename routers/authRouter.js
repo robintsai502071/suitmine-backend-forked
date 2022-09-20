@@ -181,7 +181,6 @@ router.get('/logout', (req, res, next) => {
 
 // /api/auth/checkIsLogin
 router.get('/check-is-login', (req, res, next) => {
-  // console.log(req.session);
   if (req.session.user) {
     // 表示登入過
     return res.json(req.session.user);
