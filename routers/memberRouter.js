@@ -171,19 +171,48 @@ router.get('/:memberId/check-if-body-info-filled', async (req, res, next) => {
   // 從資料庫撈取身體身體資訊去判斷，這裡選擇 height
   const [response] = await pool.execute(
     `
-  SELECT height
+  SELECT *
   FROM user
   WHERE id = ?
   `,
     [req.params.memberId]
   );
-  const { height } = response[0];
+  const {
+    birth_date,
+    gender,
+    phone,
+    address,
+    height,
+    weight,
+    shoulder_width,
+    chest_width,
+    waist_width,
+    butt_width,
+    leg_length,
+    arm_length,
+  } = response[0];
 
-  if (!height)
-    return res.status(403).json({ error: '很抱歉，您還未填寫身體資訊，請您完成後才能繼續！' });
+  if (
+    !height ||
+    !birth_date ||
+    !gender ||
+    !phone ||
+    !address ||
+    !weight ||
+    !weight ||
+    !shoulder_width ||
+    !chest_width ||
+    !waist_width ||
+    !butt_width ||
+    !leg_length ||
+    !arm_length
+  )
+    return res
+      .status(403)
+      .json({ error: '很抱歉，您還未完成填寫個人檔案，請您完成後才能繼續！' });
 
   return res.json({
-    success: '此用戶已填寫身體資訊！',
+    success: '此用戶已填寫個人檔案完畢！',
   });
 });
 
