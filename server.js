@@ -85,10 +85,6 @@ app.use('/api/products', productListRouter);
 const ProdetailRouter = require('./routers/productDetailRouter');
 app.use('/api/products', ProdetailRouter);
 
-//會員-我的最愛
-const myFavorite = require('./routers/myFavorite');
-app.use('/api/myFavorite', myFavorite);
-
 app.listen(process.env.PORT || 3001, () => {
   console.log(`Server running at port ${process.env.PORT || 3001}`);
 });
