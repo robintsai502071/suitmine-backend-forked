@@ -124,16 +124,15 @@ router.post('/login-with-google', async (req, res, next) => {
   // user 撈出來是一個陣列，有撈到資料代表有註冊過
   // 情況一：如果沒有註冊過就直接建立一個新的帳號並且也要直接登入
   if (user.length === 0) {
-    await pool.execute('INSERT INTO user (name, email, uid) VALUES (?,?,?)', [
-      req.body.displayName,
-      req.body.email,
-      req.body.uid,
-    ]);
+    const [response] = await pool.execute(
+      'INSERT INTO user (name, email, uid) VALUES (?,?,?)',
+      [req.body.displayName, req.body.email, req.body.uid]
+    );
 
     // 開始寫 session/cookie (或用 JWT 取代
     // （要先去 server.js 裡啟動 session）
     let returnUserInfo = {
-      user_id: user.id,
+      user_id: response.insertId,
       uid: req.body.uid,
       email: req.body.email,
       name: req.body.displayName,
@@ -205,10 +204,11 @@ const changePasswordRules = [
 ];
 
 router.post('/change-password', changePasswordRules, async (req, res, next) => {
-
   // 測試帳號不能修改密碼
   if (req.body.user_id === 44) {
-    return res.status(400).json({ error: '很抱歉，此帳號為測試帳號，無法修改密碼！' });
+    return res
+      .status(400)
+      .json({ error: '很抱歉，此帳號為測試帳號，無法修改密碼！' });
   }
 
   // 前端的要放一個隱形的 input 塞 id 送來後端
