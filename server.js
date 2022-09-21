@@ -12,7 +12,10 @@ app.use(
     // 為了要讓 browser 在 CORS 的情況下，還是幫我們送 cookie
     // 這邊需要把 credentials 設定成 true，而且 origin 不可以是 *
     // 不然就太恐怖，誰都可以跨源讀寫 cookie
-    origin: ['https://jocular-phoenix-fe728a.netlify.app'],
+    origin: [
+      'https://jocular-phoenix-fe728a.netlify.app',
+      'http://localhost:3000',
+    ],
     credentials: true,
   })
 );
