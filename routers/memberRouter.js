@@ -195,7 +195,7 @@ router.get('/:memberId/check-if-body-info-filled', async (req, res, next) => {
   if (
     !height ||
     !birth_date ||
-    !gender ||
+    gender === null ||
     !phone ||
     !address ||
     !weight ||
